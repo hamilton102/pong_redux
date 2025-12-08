@@ -7,6 +7,14 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
 
+  implementation "org.lwjgl:lwjgl:3.3.3"
+  implementation "org.lwjgl:lwjgl-glfw:3.3.3"
+  implementation "org.lwjgl:lwjgl-opengl:3.3.3"
+
+  runtimeOnly "org.lwjgl:lwjgl:3.3.3:natives-windows"
+  runtimeOnly "org.lwjgl:lwjgl-glfw:3.3.3:natives-windows"
+  runtimeOnly "org.lwjgl:lwjgl-opengl:3.3.3:natives-windows"
+
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
