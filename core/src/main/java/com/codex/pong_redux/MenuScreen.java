@@ -3,20 +3,46 @@ package com.codex.pong_redux;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class MenuScreen implements Screen {
 
     private final PongGame game;
     private final SettingsScreen settings;
 
+    private final Stage stage;
+    private final TextField player1Field;
+    private final TextField player2Field;
+
+
     public MenuScreen(PongGame game, SettingsScreen settings) {
         this.game = game;
         this.settings = settings;
+
+        stage = new Stage(game.viewport);
+        Gdx.input.setInputProcessor(stage);
+
+        Skin skin = new Skin(Gdx.files.internal("skins/uiskin.json"));
+
+        player1Field = new TextField("Player 1", skin);
+        player1Field.setPosition(10, 60);
+        player1Field.setSize(200, 40);
+
+        player2Field = new TextField("Player 2", skin);
+        player2Field.setPosition(10, 0);
+        player2Field.setSize(200, 40);
+
+        stage.addActor(player1Field);
+        stage.addActor(player2Field);
     }
 
     @Override
@@ -38,6 +64,7 @@ public class MenuScreen implements Screen {
         float titleX = worldWidth / 2f - layout.width / 2f;
         float titleY = worldHeight * 2f / 3f + layout.height / 2f;
         game.font.draw(game.batch, title, titleX, titleY);
+
 
 
         // START GAME
@@ -77,6 +104,9 @@ public class MenuScreen implements Screen {
 
         game.batch.end();
 
+        // Text fields (HAVE to go after batch.end()
+        stage.act(delta);
+        stage.draw();
         // mouse definitions
         Vector3 mousePosition = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
         game.viewport.getCamera().unproject(mousePosition);
@@ -87,8 +117,11 @@ public class MenuScreen implements Screen {
 
             if (mouseX >= startX && mouseX <= startX + startWidth &&
             mouseY <= startY && mouseY >= startY - startHeight) {
-                System.out.println("Mouse clicked settings button!");
-                game.setScreen(new GameScreen(game));
+                String player1Name = player1Field.getText();
+                String player2Name = player2Field.getText();
+                Player player1 = new Player("p1", player1Name);
+                Player player2 = new Player("P2", player2Name);
+                game.setScreen(new GameScreen(game, player1, player2));
                 dispose();
             }
 
@@ -96,6 +129,7 @@ public class MenuScreen implements Screen {
                 mouseY <= settingsY && mouseY >= settingsY - settingsHeight) {
                 game.setScreen(settings);
             }
+
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

@@ -18,19 +18,24 @@ public class GameScreen implements Screen {
     private float ballX, ballY;
     private float ballVelX, ballVelY;
     private final float ballRadius = 10;
+    private final int BALL_SPEED = 400;
 
     // Paddles
-    private float paddle1Y, paddle2Y;
+    private float paddle1Y, paddle2Y, paddle1X, paddle2X;
     private final float paddleWidth = 20;
     private final float paddleHeight = 100;
     private final float paddleSpeed = 300; // fixed speed
 
-    // Scores
+    // players
+    private final Player player1;
+    private final Player player2;
     private int p1score = 0;
     private int p2score = 0;
 
-    public GameScreen(PongGame game) {
+    public GameScreen(PongGame game, Player player1, Player player2) {
         this.game = game;
+        this.player1 = player1;
+        this.player2 = player2;
     }
 
     @Override
@@ -41,12 +46,14 @@ public class GameScreen implements Screen {
         // Initialize ball
         ballX = game.viewport.getWorldWidth() / 2f;
         ballY = game.viewport.getWorldHeight() / 2f;
-        ballVelX = 200;
-        ballVelY = 200;
+        ballVelX = BALL_SPEED;
+        ballVelY = BALL_SPEED;
 
         // Initialize paddles
         paddle1Y = game.viewport.getWorldHeight() / 2f - paddleHeight / 2f;
         paddle2Y = game.viewport.getWorldHeight() / 2f - paddleHeight / 2f;
+        paddle1X = 30;
+        paddle2X = game.viewport.getWorldWidth();
     }
 
     @Override
@@ -70,23 +77,38 @@ public class GameScreen implements Screen {
             // Paddle controls
             if (Gdx.input.isKeyPressed(Input.Keys.W)) paddle1Y += paddleSpeed * delta;
             if (Gdx.input.isKeyPressed(Input.Keys.S)) paddle1Y -= paddleSpeed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.D)) paddle1X += paddleSpeed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) paddle1X -= paddleSpeed * delta;
+
             if (Gdx.input.isKeyPressed(Input.Keys.UP)) paddle2Y += paddleSpeed * delta;
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) paddle2Y -= paddleSpeed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) paddle2X += paddleSpeed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) paddle2X -= paddleSpeed * delta;
 
             // Keep paddles in screen
+            paddle1X = Math.max(0, Math.min((game.viewport.getWorldWidth() / 2) - paddleWidth, paddle1X));
+            paddle2X = Math.max(game.viewport.getWorldWidth() / 2, Math.min(game.viewport.getWorldWidth() - paddleWidth, paddle2X));
+
             paddle1Y = Math.max(0, Math.min(game.viewport.getWorldHeight() - paddleHeight, paddle1Y));
             paddle2Y = Math.max(0, Math.min(game.viewport.getWorldHeight() - paddleHeight, paddle2Y));
 
-            // Paddle collision
-            if (ballX - ballRadius < 50 && ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
+            // Paddle 1 collision
+            if (ballX - ballRadius < paddle1X + paddleWidth &&
+                ballX > paddle1X &&
+                ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
                 ballVelX *= -1;
-                ballX = 50 + ballRadius;
+                ballX = paddle1X + paddleWidth + ballRadius;
             }
-            if (ballX + ballRadius > game.viewport.getWorldWidth() - 50 &&
+
+// Paddle 2 collision
+            if (ballX + ballRadius > paddle2X &&
+                ballX < paddle2X + paddleWidth &&
                 ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
                 ballVelX *= -1;
-                ballX = game.viewport.getWorldWidth() - 50 - ballRadius;
+                ballX = paddle2X - ballRadius;
             }
+
+            System.out.println("P1X=" + paddle1X + " P2X=" + paddle2X + " BallX=" + ballX);
 
             // Score reset
             if (ballX < 0) {
@@ -102,14 +124,14 @@ public class GameScreen implements Screen {
         // Draw game
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.circle(ballX, ballY, ballRadius);
-        shapeRenderer.rect(30, paddle1Y, paddleWidth, paddleHeight);
-        shapeRenderer.rect(game.viewport.getWorldWidth() - 50, paddle2Y, paddleWidth, paddleHeight);
+        shapeRenderer.rect(paddle1X, paddle1Y, paddleWidth, paddleHeight);
+        shapeRenderer.rect(paddle2X, paddle2Y, paddleWidth, paddleHeight);
         shapeRenderer.end();
 
         // Draw score & pause
         game.batch.begin();
-        game.font.draw(game.batch, "Player 1: " + p1score, game.viewport.getWorldWidth() / 4f, game.viewport.getWorldHeight() - 20);
-        game.font.draw(game.batch, "Player 2: " + p2score, game.viewport.getWorldWidth() * 3f / 4f, game.viewport.getWorldHeight() - 20);
+        game.font.draw(game.batch, player1.name + ": " +p1score, game.viewport.getWorldWidth() / 4f, game.viewport.getWorldHeight() - 20);
+        game.font.draw(game.batch, player2.name + ": " + p2score, game.viewport.getWorldWidth() * 3f / 4f, game.viewport.getWorldHeight() - 20);
 
         if (paused) {
             String pauseText = "PAUSED";
@@ -119,14 +141,28 @@ public class GameScreen implements Screen {
                 game.viewport.getWorldHeight() / 2f + pauseLayout.height / 2f);
         }
 
+        checkIfOver();
+
         game.batch.end();
     }
 
     private void resetBall() {
         ballX = game.viewport.getWorldWidth() / 2f;
         ballY = game.viewport.getWorldHeight() / 2f;
-        ballVelX = (Math.random() > 0.5 ? 200 : -200);
-        ballVelY = (Math.random() > 0.5 ? 200 : -200);
+        ballVelX = (Math.random() > 0.5 ? BALL_SPEED : -BALL_SPEED);
+        ballVelY = (Math.random() > 0.5 ? BALL_SPEED : -BALL_SPEED);
+    }
+
+    private void checkIfOver() {
+        int WIN_INT = 5;
+        if (p1score >= WIN_INT) endGame(player1, player2, p2score);
+        else if (p2score >= WIN_INT) endGame(player2, player1, p2score);
+    }
+
+    public void endGame(Player winner, Player loser, int loserScore) {
+        // game.leaderboard.updateWin(winner.id, 10);
+        // game.leaderboard.updateLoss(loser.id, loserScore);
+        game.setScreen(new EndGameScreen(game, winner, loser));
     }
 
     @Override public void resize(int width, int height) {
