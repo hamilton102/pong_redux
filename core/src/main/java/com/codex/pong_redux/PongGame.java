@@ -15,7 +15,7 @@ public class PongGame extends Game {
 
     @Override
     public void create() {
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        // Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 
         viewport = new FitViewport(1920, 1080); // choose resolution
         batch = new SpriteBatch();

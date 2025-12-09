@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MenuScreen implements Screen {
@@ -37,34 +39,61 @@ public class MenuScreen implements Screen {
         float titleY = worldHeight * 2f / 3f + layout.height / 2f;
         game.font.draw(game.batch, title, titleX, titleY);
 
-        
+
+        // START GAME
         String startText = "Start Game";
         game.font.getData().setScale(4f);
+
+        // set text size
         layout.setText(game.font, startText);
+
+        // center the text
         float startX = worldWidth / 2f - layout.width / 2f;
         float startY = titleY - 150;
+
+        // draw the text
         game.font.draw(game.batch, startText, startX, startY);
 
+        // define collision rectangle
+        float startWidth = layout.width;
+        float startHeight = layout.height;
+
+        // SETTINGS
         String settingsText = "Settings";
+
+        // set text size
         layout.setText(game.font, settingsText);
+
+        // center text
         float settingsX = worldWidth / 2f - layout.width / 2f;
         float settingsY = startY - 80;
+
+        // draw the text
         game.font.draw(game.batch, settingsText, settingsX, settingsY);
+
+        // define collision rectangle
+        float settingsWidth = layout.width;
+        float settingsHeight = layout.height;
 
         game.batch.end();
 
-        if (Gdx.input.justTouched()) {
-            float touchX = Gdx.input.getX();
-            float touchY = worldHeight - Gdx.input.getY();
+        // mouse definitions
+        Vector3 mousePosition = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        game.viewport.getCamera().unproject(mousePosition);
+        float mouseX = mousePosition.x;
+        float mouseY = mousePosition.y;
 
-            if (touchX > startX && touchX < startX + layout.width &&
-                touchY > startY - layout.height && touchY < startY) {
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+
+            if (mouseX >= startX && mouseX <= startX + startWidth &&
+            mouseY <= startY && mouseY >= startY - startHeight) {
+                System.out.println("Mouse clicked settings button!");
                 game.setScreen(new GameScreen(game));
                 dispose();
             }
 
-            if (touchX > settingsX && touchX < settingsX + layout.width &&
-                touchY > settingsY - layout.height && touchY < settingsY) {
+            if (mouseX >= settingsX && mouseX <= settingsX + settingsWidth &&
+                mouseY <= settingsY && mouseY >= settingsY - settingsHeight) {
                 game.setScreen(settings);
             }
         }
