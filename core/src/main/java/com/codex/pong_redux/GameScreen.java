@@ -136,6 +136,8 @@ public class GameScreen implements Screen {
                 ballX = paddle2X - ballRadius;
             }
 
+            System.out.println("P1X=" + paddle1X + " P2X=" + paddle2X + " BallX=" + ballX);
+
             // Score reset
             if (ballX < 0) {
                 p2score++;
