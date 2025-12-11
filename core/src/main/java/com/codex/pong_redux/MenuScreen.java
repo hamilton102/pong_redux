@@ -85,6 +85,20 @@ public class MenuScreen implements Screen {
         float startWidth = layout.width;
         float startHeight = layout.height;
 
+        // HotShot
+        String hotShot = "Start HotShot";
+        // set text size
+        layout.setText(game.font, hotShot);
+        // center the text
+        float hotX = worldWidth / 2f - layout.width / 2f;
+        float hotY = startY - 80;
+        // draw the text
+        game.font.draw(game.batch, hotShot, hotX, hotY);
+
+        // define collision rectangle
+        float hotWidth = layout.width;
+        float hotHeight = layout.height;
+
         // SETTINGS
         String settingsText = "Settings";
 
@@ -93,8 +107,7 @@ public class MenuScreen implements Screen {
 
         // center text
         float settingsX = worldWidth / 2f - layout.width / 2f;
-        float settingsY = startY - 80;
-
+        float settingsY = hotY - 80;
         // draw the text
         game.font.draw(game.batch, settingsText, settingsX, settingsY);
 
@@ -125,6 +138,7 @@ public class MenuScreen implements Screen {
 
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
 
+            // start regular game
             if (mouseX >= startX && mouseX <= startX + startWidth &&
             mouseY <= startY && mouseY >= startY - startHeight) {
                 String player1Name = player1Field.getText();
@@ -134,12 +148,22 @@ public class MenuScreen implements Screen {
                 game.setScreen(new GameScreen(game, player1, player2));
                 dispose();
             }
-
+            // start hotshot
+            if (mouseX >= hotX && mouseX <= hotX + hotWidth &&
+                mouseY <= hotY && mouseY >= hotY - hotHeight) {
+                String player1Name = player1Field.getText();
+                String player2Name = player2Field.getText();
+                Player player1 = new Player(player1Name, player1Name);
+                Player player2 = new Player(player2Name, player2Name);
+                game.setScreen(new GameScreen(game, player1, player2, 1));
+                dispose();
+            }
+            // navigate to settings
             if (mouseX >= settingsX && mouseX <= settingsX + settingsWidth &&
                 mouseY <= settingsY && mouseY >= settingsY - settingsHeight) {
                 game.setScreen(settings);
             }
-
+            // navigate to leaderboard
             if (mouseX >= leaderboardX && mouseX <= leaderboardWidth + leaderboardX &&
                 mouseY <= leaderboardY && mouseY >= leaderboardY - leaderboardHeight) {
                 game.setScreen(leaderboardScreen);
