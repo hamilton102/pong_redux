@@ -35,4 +35,13 @@ public class PlayerStats {
     public int getTotalScore() {
         return totalScore;
     }
+
+    public void setTotalScore(int score) {
+        this.totalScore = score;
+    }
+
+    public double getWinLossRatio() {
+        if (losses == 0) return wins;
+        return (double) wins / losses;
+    }
 }

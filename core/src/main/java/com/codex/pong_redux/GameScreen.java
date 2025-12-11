@@ -13,6 +13,9 @@ public class GameScreen implements Screen {
     private final PongGame game;
     private boolean paused = false;
     private GlyphLayout pauseLayout;
+    private final int WIN_INT = 5;
+    // 0 is standard, 1 is HotShot
+    private int mode = 0;
 
     // Ball
     private float ballX, ballY;
@@ -36,6 +39,12 @@ public class GameScreen implements Screen {
         this.game = game;
         this.player1 = player1;
         this.player2 = player2;
+    }
+    public GameScreen(PongGame game, Player player1, Player player2, int mode) {
+        this.game = game;
+        this.player1 = player1;
+        this.player2 = player2;
+        this.mode = mode;
     }
 
     @Override
@@ -72,7 +81,12 @@ public class GameScreen implements Screen {
             ballY += ballVelY * delta;
 
             // Bounce off top/bottom
-            if (ballY - ballRadius < 0 || ballY + ballRadius > game.viewport.getWorldHeight()) ballVelY *= -1;
+            if (mode == 1 && (ballY - ballRadius < 0 || ballY + ballRadius > game.viewport.getWorldHeight())) {
+                ballVelY *= -1;
+                ballVelX *= 1.05f;
+            } else if (ballY - ballRadius < 0 || ballY + ballRadius > game.viewport.getWorldHeight()) {
+                ballVelY *= -1;
+            }
 
             // Paddle controls
             if (Gdx.input.isKeyPressed(Input.Keys.W)) paddle1Y += paddleSpeed * delta;
@@ -93,22 +107,34 @@ public class GameScreen implements Screen {
             paddle2Y = Math.max(0, Math.min(game.viewport.getWorldHeight() - paddleHeight, paddle2Y));
 
             // Paddle 1 collision
+            // hosthost
             if (ballX - ballRadius < paddle1X + paddleWidth &&
+                ballX > paddle1X &&
+                ballY > paddle1Y && ballY < paddle1Y + paddleHeight
+                && mode == 1) {
+                ballVelX *= -1.05f;
+                ballX = paddle1X + paddleWidth + ballRadius;
+            } else if (ballX - ballRadius < paddle1X + paddleWidth &&
                 ballX > paddle1X &&
                 ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
                 ballVelX *= -1;
                 ballX = paddle1X + paddleWidth + ballRadius;
             }
 
-// Paddle 2 collision
+            // Paddle 2 collision
+            // hotshot
             if (ballX + ballRadius > paddle2X &&
+                ballX < paddle2X + paddleWidth &&
+                ballY > paddle2Y && ballY < paddle2Y + paddleHeight
+                && mode == 1) {
+                ballVelX *= -1.05f;
+                ballX = paddle2X - ballRadius;
+            } else if (ballX + ballRadius > paddle2X &&
                 ballX < paddle2X + paddleWidth &&
                 ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
                 ballVelX *= -1;
                 ballX = paddle2X - ballRadius;
             }
-
-            System.out.println("P1X=" + paddle1X + " P2X=" + paddle2X + " BallX=" + ballX);
 
             // Score reset
             if (ballX < 0) {
@@ -133,6 +159,9 @@ public class GameScreen implements Screen {
         game.font.draw(game.batch, player1.name + ": " +p1score, game.viewport.getWorldWidth() / 4f, game.viewport.getWorldHeight() - 20);
         game.font.draw(game.batch, player2.name + ": " + p2score, game.viewport.getWorldWidth() * 3f / 4f, game.viewport.getWorldHeight() - 20);
 
+        // debug
+        System.out.println("Ball Speed: " + ballVelX);
+
         if (paused) {
             String pauseText = "PAUSED";
             pauseLayout.setText(game.font, pauseText);
@@ -154,14 +183,13 @@ public class GameScreen implements Screen {
     }
 
     private void checkIfOver() {
-        int WIN_INT = 5;
         if (p1score >= WIN_INT) endGame(player1, player2, p2score);
         else if (p2score >= WIN_INT) endGame(player2, player1, p2score);
     }
 
     public void endGame(Player winner, Player loser, int loserScore) {
-        // game.leaderboard.updateWin(winner.id, 10);
-        // game.leaderboard.updateLoss(loser.id, loserScore);
+        game.leaderboard.updateWin(winner.id, WIN_INT);
+        game.leaderboard.updateLoss(loser.id, loserScore);
         game.setScreen(new EndGameScreen(game, winner, loser));
     }
 

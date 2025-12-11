@@ -12,7 +12,7 @@ public class PongGame extends Game {
     public FitViewport viewport;
     public SpriteBatch batch;
     public BitmapFont font;
-
+    public Leaderboard leaderboard;
 
     public SettingsScreen settings;
 
@@ -35,6 +35,7 @@ public class PongGame extends Game {
 //	    generator.dispose();
 
         // Start with the menu
+        leaderboard = new Leaderboard();
         settings = new SettingsScreen(this);
         setScreen(new MenuScreen(this, settings));
     }
