@@ -18,6 +18,7 @@ public class MenuScreen implements Screen {
 
     private final PongGame game;
     private final SettingsScreen settings;
+    private final LeaderboardScreen leaderboardScreen;
 
     private final Stage stage;
     private final TextField player1Field;
@@ -27,6 +28,7 @@ public class MenuScreen implements Screen {
     public MenuScreen(PongGame game, SettingsScreen settings) {
         this.game = game;
         this.settings = settings;
+        this.leaderboardScreen = new LeaderboardScreen(game, game.leaderboard);
 
         stage = new Stage(game.viewport);
         Gdx.input.setInputProcessor(stage);
@@ -65,8 +67,6 @@ public class MenuScreen implements Screen {
         float titleY = worldHeight * 2f / 3f + layout.height / 2f;
         game.font.draw(game.batch, title, titleX, titleY);
 
-
-
         // START GAME
         String startText = "Start Game";
         game.font.getData().setScale(4f);
@@ -102,6 +102,16 @@ public class MenuScreen implements Screen {
         float settingsWidth = layout.width;
         float settingsHeight = layout.height;
 
+        // Leaderboard
+        String leaderboardText = "Leaderboard";
+        layout.setText(game.font, leaderboardText);
+        float leaderboardX = game.viewport.getWorldWidth() / 2f - layout.width / 2f;
+        float leaderboardY = settingsY - 80;
+        game.font.draw(game.batch, leaderboardText, leaderboardX, leaderboardY);
+
+        float leaderboardWidth = layout.width;
+        float leaderboardHeight = layout.height;
+
         game.batch.end();
 
         // Text fields (HAVE to go after batch.end()
@@ -119,8 +129,8 @@ public class MenuScreen implements Screen {
             mouseY <= startY && mouseY >= startY - startHeight) {
                 String player1Name = player1Field.getText();
                 String player2Name = player2Field.getText();
-                Player player1 = new Player("p1", player1Name);
-                Player player2 = new Player("P2", player2Name);
+                Player player1 = new Player(player1Name, player1Name);
+                Player player2 = new Player(player2Name, player2Name);
                 game.setScreen(new GameScreen(game, player1, player2));
                 dispose();
             }
@@ -128,6 +138,11 @@ public class MenuScreen implements Screen {
             if (mouseX >= settingsX && mouseX <= settingsX + settingsWidth &&
                 mouseY <= settingsY && mouseY >= settingsY - settingsHeight) {
                 game.setScreen(settings);
+            }
+
+            if (mouseX >= leaderboardX && mouseX <= leaderboardWidth + leaderboardX &&
+                mouseY <= leaderboardY && mouseY >= leaderboardY - leaderboardHeight) {
+                game.setScreen(leaderboardScreen);
             }
 
         }

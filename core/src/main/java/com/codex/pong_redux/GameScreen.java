@@ -13,6 +13,7 @@ public class GameScreen implements Screen {
     private final PongGame game;
     private boolean paused = false;
     private GlyphLayout pauseLayout;
+    private final int WIN_INT = 5;
 
     // Ball
     private float ballX, ballY;
@@ -154,14 +155,13 @@ public class GameScreen implements Screen {
     }
 
     private void checkIfOver() {
-        int WIN_INT = 5;
         if (p1score >= WIN_INT) endGame(player1, player2, p2score);
         else if (p2score >= WIN_INT) endGame(player2, player1, p2score);
     }
 
     public void endGame(Player winner, Player loser, int loserScore) {
-        // game.leaderboard.updateWin(winner.id, 10);
-        // game.leaderboard.updateLoss(loser.id, loserScore);
+        game.leaderboard.updateWin(winner.id, WIN_INT);
+        game.leaderboard.updateLoss(loser.id, loserScore);
         game.setScreen(new EndGameScreen(game, winner, loser));
     }
 

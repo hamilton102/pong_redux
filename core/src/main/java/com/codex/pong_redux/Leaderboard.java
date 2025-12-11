@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.badlogic.gdx.utils.GdxNativesLoader.load;
 
@@ -36,9 +38,16 @@ public class Leaderboard {
         return players;
     }
 
+    public List<PlayerStats> getTopPlayers(int limit) {
+        return players.values().stream()
+            .sorted((a, b) -> Double.compare(a.getWinLossRatio(), b.getWinLossRatio()))
+            .limit(limit)
+            .collect(Collectors.toList());
+    }
+
     private void save() {
         for (PlayerStats stats : players.values()) {
-            String key = stats.playerId;
+            String key = stats.getPlayerId();
             preferences.putInteger(key + "_wins", stats.getWins());
             preferences.putInteger(key + "_losses", stats.getLosses());
             preferences.putInteger(key + "_score", stats.getTotalScore());
@@ -53,8 +62,9 @@ public class Leaderboard {
                 PlayerStats stats = new PlayerStats(playerId);
                 stats.addWin(preferences.getInteger(playerId + "_wins"));
                 stats.addLoss(preferences.getInteger(playerId + "_losses"));
+
                 int score = preferences.getInteger(playerId + "_score");
-                for (int i = 0; i < score; i++) stats.addWin(0);
+                stats.setTotalScore(score);
                 players.put(playerId, stats);
             }
         }
