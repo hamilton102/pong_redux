@@ -12,9 +12,13 @@ public class PongGame extends Game {
     public FitViewport viewport;
     public SpriteBatch batch;
     public BitmapFont font;
+    public Leaderboard leaderboard;
+
+    public SettingsScreen settings;
 
     @Override
     public void create() {
+        PlayerStats stats;
         // Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 
         viewport = new FitViewport(1920, 1080); // choose resolution
@@ -31,7 +35,9 @@ public class PongGame extends Game {
 //	    generator.dispose();
 
         // Start with the menu
-        SettingsScreen settings = new SettingsScreen(this);
+        leaderboard = new Leaderboard();
+        settings = new SettingsScreen(this);
         setScreen(new MenuScreen(this, settings));
     }
+
 }
