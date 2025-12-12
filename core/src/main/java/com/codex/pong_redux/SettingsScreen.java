@@ -22,7 +22,7 @@ public class SettingsScreen implements Screen {
     private Slider p1Slider, p2Slider;
     private Label p1Label, p2Label;
     
-    private final GlyphLayout layout = new GlyphLayout;
+    private final GlyphLayout layout = new GlyphLayout();
 
     //added separate paddle speeds for players 1 and 2
     public float paddle1Speed = 300;
@@ -83,7 +83,7 @@ public class SettingsScreen implements Screen {
             game.batch, 
             text,
             game.viewport.getWorldWidth() / 2f - layout.width / 2f,
-            game.viewport.getWorldHeight() / 2f
+            game.viewport.getWorldHeight() - 40
         );
         
         game.batch.end();
@@ -130,4 +130,5 @@ public class SettingsScreen implements Screen {
         skin.dispose();
     }
 }
+
 
