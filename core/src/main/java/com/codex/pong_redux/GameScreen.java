@@ -27,7 +27,10 @@ public class GameScreen implements Screen {
     private float paddle1Y, paddle2Y, paddle1X, paddle2X;
     private final float paddleWidth = 20;
     private final float paddleHeight = 100;
-    private final float paddleSpeed = 300; // fixed speed
+
+    // paddle speeds from SettingsScreen 
+    private float paddle1Speed;
+    private float paddle2Speed;
 
     // players
     private final Player player1;
@@ -51,6 +54,10 @@ public class GameScreen implements Screen {
     public void show() {
         shapeRenderer = new ShapeRenderer();
         pauseLayout = new GlyphLayout();
+
+        Gdx.input.setInputProcessor(null);
+        paddle1Speed = game.settings.paddle1Speed;
+        paddle2Speed = game.settings.paddle2Speed;
 
         // Initialize ball
         ballX = game.viewport.getWorldWidth() / 2f;
@@ -89,15 +96,15 @@ public class GameScreen implements Screen {
             }
 
             // Paddle controls
-            if (Gdx.input.isKeyPressed(Input.Keys.W)) paddle1Y += paddleSpeed * delta;
-            if (Gdx.input.isKeyPressed(Input.Keys.S)) paddle1Y -= paddleSpeed * delta;
-            if (Gdx.input.isKeyPressed(Input.Keys.D)) paddle1X += paddleSpeed * delta;
-            if (Gdx.input.isKeyPressed(Input.Keys.A)) paddle1X -= paddleSpeed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.W)) paddle1Y += paddle1Speed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.S)) paddle1Y -= paddle1Speed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.D)) paddle1X += paddle1Speed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.A)) paddle1X -= paddle1Speed * delta;
 
-            if (Gdx.input.isKeyPressed(Input.Keys.UP)) paddle2Y += paddleSpeed * delta;
-            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) paddle2Y -= paddleSpeed * delta;
-            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) paddle2X += paddleSpeed * delta;
-            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) paddle2X -= paddleSpeed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.UP)) paddle2Y += paddle2Speed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) paddle2Y -= paddle2Speed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) paddle2X += paddle2Speed * delta;
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) paddle2X -= paddle2Speed * delta;
 
             // Keep paddles in screen
             paddle1X = Math.max(0, Math.min((game.viewport.getWorldWidth() / 2) - paddleWidth, paddle1X));
@@ -215,3 +222,4 @@ public class GameScreen implements Screen {
         if (shapeRenderer != null) shapeRenderer.dispose();
     }
 }
+
